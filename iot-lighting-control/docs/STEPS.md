@@ -5,14 +5,15 @@
 - [x] GPIOの動作確認（LEDチカチカテスト）
 - [x] 開発用ディレクトリをラズパイに作成
 
-## Phase 2: ハードウェア準備 ✅ 準備完了
+## Phase 2: ハードウェア準備 ✅ 完了（赤外線LED待ち）
 - [x] 回路図を作成 → `docs/circuit.md`
-- [ ] ブレッドボードで回路を組む ← **あなたの作業**
-  - 赤外線受信モジュール（OSRB38C9AA）の配線
-  - 赤外線LED（OSI5FU5111C-40）+ トランジスタ（2SC1815）の配線
-- [ ] 配線の動作確認
-  - 受信テスト: `python3 ~/iot-lighting-control/src/test_ir_receiver.py`
-  - 送信テスト: `python3 ~/iot-lighting-control/src/test_ir_led.py`
+- [x] ブレッドボードで回路を組む
+  - [x] 赤外線受信モジュール（OSRB38C9AA）の配線
+  - [x] トランジスタ（2SC1815）送信回路の配線
+  - [ ] 赤外線LED（OSI5FU5111C-40）→ **買い直し必要**
+- [x] 配線の動作確認
+  - [x] 受信テスト: `python3 ~/iot-lighting-control/src/test_ir_receiver.py`
+  - [x] 送信回路テスト: 通常LEDで動作確認済み
 
 ## Phase 3: 赤外線信号の学習
 - [ ] 赤外線受信プログラムを作成
@@ -41,7 +42,8 @@
 ---
 
 ## 現在の進捗
-**Phase 2: ハードウェア準備** ← 今ここ
+**Phase 3: 赤外線信号の学習** ← 赤外線LED届いたら開始
 
 ### 完了したPhase
 - Phase 1: 環境セットアップ ✅
+- Phase 2: ハードウェア準備 ✅（赤外線LED買い直し待ち）
