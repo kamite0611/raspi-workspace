@@ -5,12 +5,14 @@
 - [x] GPIOの動作確認（LEDチカチカテスト）
 - [x] 開発用ディレクトリをラズパイに作成
 
-## Phase 2: ハードウェア準備
-- [ ] 回路図を作成
-- [ ] ブレッドボードで回路を組む
+## Phase 2: ハードウェア準備 ✅ 準備完了
+- [x] 回路図を作成 → `docs/circuit.md`
+- [ ] ブレッドボードで回路を組む ← **あなたの作業**
   - 赤外線受信モジュール（OSRB38C9AA）の配線
   - 赤外線LED（OSI5FU5111C-40）+ トランジスタ（2SC1815）の配線
 - [ ] 配線の動作確認
+  - 受信テスト: `python3 ~/iot-lighting-control/src/test_ir_receiver.py`
+  - 送信テスト: `python3 ~/iot-lighting-control/src/test_ir_led.py`
 
 ## Phase 3: 赤外線信号の学習
 - [ ] 赤外線受信プログラムを作成
