@@ -7,7 +7,7 @@ import time
 
 IR_GPIO = 18
 FREQ = 38000
-CONFIG = "/home/akamite/iot-lighting-control/config/ir_signals.json"
+CONFIG = "/home/akamite/iot-lighting-control/iot/config/ir_signals.json"
 
 # コマンドと信号のマッピング
 COMMANDS = {

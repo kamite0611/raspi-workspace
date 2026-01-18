@@ -86,7 +86,7 @@ def main():
     print("=== 赤外線信号キャプチャ ===\n")
 
     capture = IRCapture(pi, IR_RECEIVER_GPIO)
-    config_file = "/home/akamite/iot-lighting-control/config/ir_signals.json"
+    config_file = "/home/akamite/iot-lighting-control/iot/config/ir_signals.json"
 
     try:
         while True:

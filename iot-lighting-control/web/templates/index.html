@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>照明コントロール</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+        h1 {
+            color: #fff;
+            margin-bottom: 40px;
+            font-size: 1.5em;
+        }
+        .buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        button {
+            padding: 25px 40px;
+            font-size: 1.4em;
+            border: none;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 600;
+        }
+        button:active {
+            transform: scale(0.95);
+        }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .btn-on {
+            background: linear-gradient(145deg, #ffd93d, #ff9500);
+            color: #1a1a2e;
+            box-shadow: 0 8px 25px rgba(255, 217, 61, 0.3);
+        }
+        .btn-off {
+            background: linear-gradient(145deg, #4a5568, #2d3748);
+            color: #fff;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+        .btn-super {
+            background: linear-gradient(145deg, #fff, #f0f0f0);
+            color: #1a1a2e;
+            box-shadow: 0 8px 25px rgba(255, 255, 255, 0.2);
+        }
+        .status {
+            margin-top: 30px;
+            padding: 15px;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 0.9em;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .status.show {
+            opacity: 1;
+        }
+        .status.success {
+            background: rgba(72, 187, 120, 0.3);
+        }
+        .status.error {
+            background: rgba(245, 101, 101, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>照明コントロール</h1>
+        <div class="buttons">
+            <button class="btn-on" onclick="sendCommand('on')">点灯</button>
+            <button class="btn-super" onclick="sendCommand('super')">全灯</button>
+            <button class="btn-off" onclick="sendCommand('off')">消灯</button>
+        </div>
+        <div id="status" class="status"></div>
+    </div>
+
+    <script>
+        async function sendCommand(action) {
+            const buttons = document.querySelectorAll('button');
+            const status = document.getElementById('status');
+
+            buttons.forEach(b => b.disabled = true);
+            status.className = 'status';
+            status.textContent = '送信中...';
+            status.classList.add('show');
+
+            try {
+                const res = await fetch(`/api/light/${action}`, { method: 'POST' });
+                const data = await res.json();
+
+                status.textContent = data.success ? '完了' : data.message;
+                status.classList.add(data.success ? 'success' : 'error');
+            } catch (e) {
+                status.textContent = 'エラー: ' + e.message;
+                status.classList.add('error');
+            }
+
+            buttons.forEach(b => b.disabled = false);
+
+            setTimeout(() => {
+                status.classList.remove('show');
+            }, 2000);
+        }
+    </script>
+</body>
+</html>

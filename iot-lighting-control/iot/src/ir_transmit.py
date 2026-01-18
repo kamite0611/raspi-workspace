@@ -76,7 +76,7 @@ def main():
 
     args = parser.parse_args()
 
-    config_file = "/home/akamite/iot-lighting-control/config/ir_signals.json"
+    config_file = "/home/akamite/iot-lighting-control/iot/config/ir_signals.json"
     signals = load_signals(config_file)
 
     if not signals:
