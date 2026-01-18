@@ -1,0 +1,88 @@
+#!/usr/bin/env python3
+"""照明制御コマンド - シンプルなCLI"""
+import pigpio
+import json
+import sys
+import time
+
+IR_GPIO = 18
+FREQ = 38000
+CONFIG = "/home/akamite/iot-lighting-control/config/ir_signals.json"
+
+# コマンドと信号のマッピング
+COMMANDS = {
+    "on": "light_on",
+    "off": "light_off",
+    "super": "light_super_on",
+    "1": "light_on",
+    "0": "light_off",
+}
+
+def load_signals():
+    try:
+        with open(CONFIG) as f:
+            return json.load(f)
+    except:
+        return {}
+
+def transmit(pi, pulses):
+    pi.hardware_PWM(IR_GPIO, FREQ, 0)
+    for level, duration in pulses:
+        if level == 1:
+            pi.hardware_PWM(IR_GPIO, FREQ, 500000)
+        else:
+            pi.hardware_PWM(IR_GPIO, FREQ, 0)
+        end = time.perf_counter() + (duration / 1000000.0)
+        while time.perf_counter() < end:
+            pass
+    pi.hardware_PWM(IR_GPIO, FREQ, 0)
+
+def main():
+    if len(sys.argv) < 2:
+        print("使い方: light <コマンド>")
+        print("")
+        print("コマンド:")
+        print("  on, 1     点灯")
+        print("  off, 0    消灯")
+        print("  super     全灯")
+        print("  list      保存済み信号一覧")
+        return 1
+
+    cmd = sys.argv[1].lower()
+    signals = load_signals()
+
+    if cmd == "list":
+        print("保存済み信号:")
+        for name in signals:
+            print(f"  {name}")
+        return 0
+
+    # コマンドを信号名に変換
+    signal_name = COMMANDS.get(cmd, cmd)
+
+    if signal_name not in signals:
+        print(f"不明: {cmd}")
+        print("light list で一覧表示")
+        return 1
+
+    pi = pigpio.pi()
+    if not pi.connected:
+        print("Error: pigpiod接続失敗")
+        return 1
+
+    try:
+        pulses = signals[signal_name]['pulses']
+        # 3回送信
+        for i in range(3):
+            transmit(pi, pulses)
+            if i < 2:
+                time.sleep(0.1)
+        print(f"✓ {cmd}")
+    finally:
+        pi.hardware_PWM(IR_GPIO, FREQ, 0)
+        pi.stop()
+
+    return 0
+
+if __name__ == "__main__":
+    sys.exit(main())
