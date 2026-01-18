@@ -1,10 +1,15 @@
 #!/usr/bin/env python3
 """照明制御 Webインターフェース"""
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, render_template, jsonify, request, Response
+from functools import wraps
+from dotenv import load_dotenv
 import pigpio
 import json
 import time
 import os
+
+# .env読み込み
+load_dotenv()
 
 app = Flask(__name__)
 
@@ -13,12 +18,40 @@ IR_GPIO = 18
 FREQ = 38000
 CONFIG_PATH = "/home/akamite/iot-lighting-control/iot/config/ir_signals.json"
 
+# Basic認証
+AUTH_USERNAME = os.getenv('BASIC_AUTH_USERNAME', 'admin')
+AUTH_PASSWORD = os.getenv('BASIC_AUTH_PASSWORD', 'password')
+
 # コマンドマッピング
 COMMANDS = {
     "on": "light_on",
     "off": "light_off",
     "super": "light_super_on",
 }
+
+
+def check_auth(username, password):
+    """認証チェック"""
+    return username == AUTH_USERNAME and password == AUTH_PASSWORD
+
+
+def authenticate():
+    """認証要求"""
+    return Response(
+        '認証が必要です', 401,
+        {'WWW-Authenticate': 'Basic realm="Login Required"'}
+    )
+
+
+def requires_auth(f):
+    """Basic認証デコレータ"""
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        auth = request.authorization
+        if not auth or not check_auth(auth.username, auth.password):
+            return authenticate()
+        return f(*args, **kwargs)
+    return decorated
 
 
 def load_signals():
@@ -64,11 +97,13 @@ def transmit_signal(signal_name, repeat=3):
 
 
 @app.route('/')
+@requires_auth
 def index():
     return render_template('index.html')
 
 
 @app.route('/api/light/<action>', methods=['POST'])
+@requires_auth
 def control_light(action):
     signal_name = COMMANDS.get(action, action)
     success, message = transmit_signal(signal_name)
@@ -80,6 +115,7 @@ def control_light(action):
 
 
 @app.route('/api/signals')
+@requires_auth
 def list_signals():
     signals = load_signals()
     return jsonify({
@@ -88,4 +124,4 @@ def list_signals():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=False)
